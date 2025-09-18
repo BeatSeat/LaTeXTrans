@@ -161,4 +161,3 @@ python main.py --arxiv ${xxxx}
   journal={arXiv preprint arXiv:2508.18791},
   year={2025}
 }
-```
