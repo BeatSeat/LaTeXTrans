@@ -70,11 +70,19 @@ config/default.toml
 Set the language model's API key and base URL in default.toml :
 
 ```toml
-model = " " # model name (For example, deepseek-v3)
+model = " " # model name (For example, deepseek-chat)
 api_key = " " # your_api_key_here
-base_url = " " # base url of the API
+base_url = " " # base url of the API (For example, https://api.deepseek.com/v1/chat/completions)
 ```
 
+ > [!NOTE]
+For the following models, the recommended base_url is as follows:
+
+| Model |base_url| 
+|:-|:-|
+|deepseek-chat|https://api.deepseek.com/v1/chat/completions|
+|gpt-4o|https://api.openai.com/v1/chat/completions|
+|gemini-2.5-pro|https://generativelanguage.googleapis.com/v1beta/openai/chat/completions|
 
 # 📚 Usage
 

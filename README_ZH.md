@@ -71,10 +71,20 @@ config/default.toml
 设置语言模型的API密钥和基础URL：
 
 ```toml
-model = " " # 模型名称（例如：deepseek-v3）
+model = " " # model name (For example, deepseek-chat)
 api_key = " " # your_api_key_here
-base_url = " " # base url of the API
+base_url = " " # base url of the API (For example, https://api.deepseek.com/v1/chat/completions)
 ```
+
+ > [!NOTE]
+对于以下几个模型，推荐使用的base_url 如下：
+
+| Model |base_url| 
+|:-|:-|
+|deepseek-chat|https://api.deepseek.com/v1/chat/completions|
+|gpt-4o|https://api.openai.com/v1/chat/completions|
+|gemini-2.5-pro|https://generativelanguage.googleapis.com/v1beta/openai/chat/completions|
+
 
 # 📚 使用方式
 
