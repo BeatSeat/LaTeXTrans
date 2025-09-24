@@ -74,7 +74,7 @@ base_url = " " # base url of the API (For example, https://api.deepseek.com/v1/c
 ```
 
  > [!NOTE]
-对于以下几个模型，推荐使用的base_url 如下：
+下面的例子是对于不同的模型，推荐使用的base_url：
 
 | Model |base_url| 
 |:-|:-|

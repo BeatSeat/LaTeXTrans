@@ -76,7 +76,7 @@ base_url = " " # base url of the API (For example, https://api.deepseek.com/v1/c
 ```
 
  > [!NOTE]
-For the following models, the recommended base_url is as follows:
+The following example shows the recommended base_url for different models:
 
 | Model |base_url| 
 |:-|:-|
