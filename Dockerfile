@@ -20,27 +20,23 @@ RUN pnpm install --frozen-lockfile \
 FROM python:3.11-slim AS backend
 WORKDIR /app
 
-# System deps + MiKTeX LaTeX toolchain (for EN->ZH compiling)
+# System deps + TeX Live LaTeX toolchain (avoid MiKTeX bot-protected repo)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     curl \
     ca-certificates \
-    gnupg \
     wget \
     perl \
+    # TeX Live components for XeLaTeX + CJK (Chinese) support
+    texlive-latex-base \
+    texlive-latex-recommended \
+    texlive-latex-extra \
+    texlive-fonts-recommended \
+    texlive-xetex \
+    texlive-lang-chinese \
+    fonts-noto-cjk \
+    latexmk \
  && rm -rf /var/lib/apt/lists/*
-
-# Add MiKTeX apt repository and install
-RUN set -eux; \
-    wget -qO- https://miktex.org/download/gpg | gpg --dearmor > /usr/share/keyrings/miktex-archive-keyring.gpg; \
-    echo "deb [signed-by=/usr/share/keyrings/miktex-archive-keyring.gpg] https://miktex.org/download/linux/debian bookworm universe" > /etc/apt/sources.list.d/miktex.list; \
-    apt-get update; \
-    apt-get install -y --no-install-recommends miktex; \
-    miktexsetup --quiet finish; \
-    initexmf --admin --set-config-value "[MPM]AutoInstall=1"; \
-    mpm --admin --update-db; \
-    mpm --admin --update; \
-    rm -rf /var/lib/apt/lists/*
 
 # Python deps
 COPY requirements.txt ./
