@@ -18,7 +18,8 @@ English | [中文](README_ZH.md)
 
 • 📖 [Introduction](#-introduction) 
 • 🛠️ [Installation Guide](#️-installation-guide) 
-• ⚙️ [Configuration Guide](#️-configuration-guide)
+• ⚙️ [Configuration](#️-configuration)
+• 🐳 [Docker](#-docker)
 • 📚 [Usage](#-Usage)
 • 🖼️ [Translation Examples](#️-translation-examples) 
 
@@ -57,32 +58,55 @@ If you need to compile LaTeX files (e.g., generate PDF output), install [MikTex]
  > [!IMPORTANT]
 For MikTex, installation please be sure to select "install on the fly", in addition, you need to install additional [Strawberry Perl](http://strawberryperl.com/) support compilation.
 
-# ⚙️ Configuration Guide
+# ⚙️ Configuration
 
-### Local Configuration
+This project no longer uses `config/default.toml`. All configuration is provided via environment variables.
 
-Please edit the configuration file before use:
+Required (LLM):
 
-```arduino
-config/default.toml
-```
+- `LTX_BASE_URL` or `BASE_URL`: LLM API base URL (e.g. `https://api.deepseek.com/v1/chat/completions`)
+- `LTX_API_KEY` or `API_KEY`: LLM API key
+- `LTX_MODEL` or `MODEL`: model name (e.g. `deepseek-chat`)
 
-Set the language model's API key and base URL in default.toml :
+Optional:
 
-```toml
-model = " " # model name (For example, deepseek-chat)
-api_key = " " # your_api_key_here
-base_url = " " # base url of the API (For example, https://api.deepseek.com/v1/chat/completions)
-```
+- `LTX_CONCURRENCY` or `CONCURRENCY`: concurrent translation requests (default `10`)
+- `ARXIV_BASE_URL`: base domain for arXiv (default `https://arxiv.org`), set this if you use a mirror
+- `LTX_TARGET_LANGUAGE` (default `ch`), `LTX_SOURCE_LANGUAGE` (default `en`)
+- `LTX_MODE` (default `0`), `LTX_USER_TERM` (path or empty)
+- `APP_PASSWORD`: password for logging into the web UI (required when using the Docker service UI)
+- `JWT_SECRET` (default `dev-secret`), `TOKEN_TTL_SECONDS` (default `604800`)
 
- > [!NOTE]
-The following example shows the recommended base_url for different models:
+Recommended base_url samples:
 
-| Model |base_url| 
+| Model | base_url |
 |:-|:-|
-|deepseek-chat|https://api.deepseek.com/v1/chat/completions|
-|gpt-4o|https://api.openai.com/v1/chat/completions|
-|gemini-2.5-pro|https://generativelanguage.googleapis.com/v1beta/openai/chat/completions|
+| deepseek-chat | https://api.deepseek.com/v1/chat/completions |
+| gpt-4o | https://api.openai.com/v1/chat/completions |
+| gemini-2.5-pro | https://generativelanguage.googleapis.com/v1beta/openai/chat/completions |
+
+# 🐳 Docker
+
+Build the frontend+backend image:
+
+```bash
+docker build -t latextrans .
+```
+
+Run with environment variables:
+
+```bash
+docker run -p 8000:8000 \
+  -e APP_PASSWORD=your_password \
+  -e LTX_BASE_URL=https://api.deepseek.com/v1/chat/completions \
+  -e LTX_API_KEY=sk-xxx \
+  -e LTX_MODEL=deepseek-chat \
+  -e LTX_CONCURRENCY=16 \
+  -e ARXIV_BASE_URL=https://arxiv.org \
+  latextrans
+```
+
+Then open `http://localhost:8000`, login with `APP_PASSWORD`, and submit arXiv IDs.
 
 # 📚 Usage
 
@@ -91,16 +115,20 @@ The following example shows the recommended base_url for different models:
 Simply provide an arXiv paper ID to complete translation:
 
 ```bash
-python main.py --arxiv ${xxxx}
-# For example, 
-# python main.py --arxiv 2508.18791
+# set envs for local CLI usage
+export LTX_BASE_URL=...
+export LTX_API_KEY=...
+export LTX_MODEL=...
+export LTX_CONCURRENCY=10
+
+python main.py --arxiv 2508.18791
 ```
 
 This command will:
 
 1. Download the LaTeX source code from arXiv and extract it
 2. Execute a workflow consisting of parsing, translation, refactoring and compilation
-3. Save the translated LaTeX project file of the paper and the PDF of the compiled translation in the outputs folder
+3. Save the translated LaTeX project and the compiled translation PDF in the outputs folder
 
  > [!NOTE]
 Although LaTeXTrans supports translation from any language to any language, the current version has only made relatively complete compilation adaptations for translation from English to Chinese. When translating to other languages, the final output pdf may contain errors. We welcome you to raise an issue to describe the problem you have encountered, and we will solve it case by case.

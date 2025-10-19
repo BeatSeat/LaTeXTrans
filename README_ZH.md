@@ -20,6 +20,7 @@
 • 📖 [介绍](#-介绍) 
 • 🛠️ [安装指南](#️-安装指南) 
 • ⚙️ [配置说明](#️-配置说明)
+• 🐳 [Docker](#-docker)
 • 📚 [使用方式](#-使用方式)
 • 🖼️ [翻译样例](#️-翻译样例) 
 
@@ -58,29 +59,53 @@ pip install -r requirements.txt
 
 # ⚙️ 配置说明
 
+项目已移除 `config/default.toml`，全部配置通过环境变量提供。
 
-使用前请编辑配置文件：
+必填（LLM）:
 
-```arduino
-config/default.toml
-```
+- `LTX_BASE_URL` 或 `BASE_URL`：LLM 接口地址（如 `https://api.deepseek.com/v1/chat/completions`）
+- `LTX_API_KEY` 或 `API_KEY`：LLM API Key
+- `LTX_MODEL` 或 `MODEL`：模型名称（如 `deepseek-chat`）
 
-设置语言模型的API密钥和基础URL：
+可选：
 
-```toml
-model = " " # model name (For example, deepseek-chat)
-api_key = " " # your_api_key_here
-base_url = " " # base url of the API (For example, https://api.deepseek.com/v1/chat/completions)
-```
+- `LTX_CONCURRENCY` 或 `CONCURRENCY`：并发请求数（默认 `10`）
+- `ARXIV_BASE_URL`：arXiv 基础域名（默认 `https://arxiv.org`），如使用镜像可设置
+- `LTX_TARGET_LANGUAGE`（默认 `ch`）、`LTX_SOURCE_LANGUAGE`（默认 `en`）
+- `LTX_MODE`（默认 `0`）、`LTX_USER_TERM`（术语表路径或空）
+- `APP_PASSWORD`：Web UI 登录密码（使用容器服务时必填）
+- `JWT_SECRET`（默认 `dev-secret`）、`TOKEN_TTL_SECONDS`（默认 `604800`）
 
- > [!NOTE]
-下面的例子是对于不同的模型，推荐使用的base_url：
+推荐 base_url 样例：
 
-| Model |base_url| 
+| Model | base_url |
 |:-|:-|
-|deepseek-chat|https://api.deepseek.com/v1/chat/completions|
-|gpt-4o|https://api.openai.com/v1/chat/completions|
-|gemini-2.5-pro|https://generativelanguage.googleapis.com/v1beta/openai/chat/completions|
+| deepseek-chat | https://api.deepseek.com/v1/chat/completions |
+| gpt-4o | https://api.openai.com/v1/chat/completions |
+| gemini-2.5-pro | https://generativelanguage.googleapis.com/v1beta/openai/chat/completions |
+
+# 🐳 Docker
+
+构建前后端一体镜像：
+
+```bash
+docker build -t latextrans .
+```
+
+运行并通过环境变量配置：
+
+```bash
+docker run -p 8000:8000 \
+  -e APP_PASSWORD=your_password \
+  -e LTX_BASE_URL=https://api.deepseek.com/v1/chat/completions \
+  -e LTX_API_KEY=sk-xxx \
+  -e LTX_MODEL=deepseek-chat \
+  -e LTX_CONCURRENCY=16 \
+  -e ARXIV_BASE_URL=https://arxiv.org \
+  latextrans
+```
+
+浏览器打开 `http://localhost:8000`，使用 `APP_PASSWORD` 登录后提交 arXiv ID 即可。
 
 
 # 📚 使用方式
@@ -89,16 +114,20 @@ base_url = " " # base url of the API (For example, https://api.deepseek.com/v1/c
 只需提供 arXiv 论文 ID 即可完成翻译：
 
 ```bash
-python main.py --arxiv ${xxxx}
-# For example, 
-# python main.py --arxiv 2508.18791
+# 本地 CLI 使用前设置环境变量
+export LTX_BASE_URL=...
+export LTX_API_KEY=...
+export LTX_MODEL=...
+export LTX_CONCURRENCY=10
+
+python main.py --arxiv 2508.18791
 ```
 
 该命令将：
 
 1. 从 arXiv 下载 LaTeX 源码并解压
 2. 执行由解析、翻译、重构和编译组成的工作流
-3. 在 outputs 文件夹保存翻译后的论文 LaTeX 项目文件和编译生成的译文PDF
+3. 在 outputs 文件夹保存翻译后的 LaTeX 项目和编译生成的译文 PDF
 
  > [!NOTE]
 尽管 LaTeXTrans 支持任意语言到任意语言的翻译，但是目前版本仅对英文到中文的翻译做了相对完善的编译适配。翻译到其他语言时，最终输出的 pdf 可能会有错误，欢迎提出 issue 来描述您遇到的问题，我们会逐个解决。

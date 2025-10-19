@@ -4,6 +4,7 @@ from pylatexenc.latexwalker import (
     )
 from pylatexenc.latex2text import LatexNodes2Text
 import os
+from urllib.parse import urlparse
 import re
 import json
 import zipfile
@@ -693,18 +694,19 @@ def get_tex_url(arxiv_id: str, headers: dict) -> str:
     """
     获取 TeX 源码下载链接
     """
-    abs_url = f"https://arxiv.org/abs/{arxiv_id}"
-    try:
-        resp = requests.get(abs_url, headers=headers, timeout=10)
-        resp.raise_for_status()
-    except requests.RequestException:
-        return ""
+    # abs_url = f"{ARXIV_BASE_URL}/abs/{arxiv_id}"
+    # try:
+    #     resp = requests.get(abs_url, headers=headers, timeout=10)
+    #     resp.raise_for_status()
+    # except requests.RequestException:
+    #     return ""
     
-    soup = BeautifulSoup(resp.text, "html.parser")
-    link = soup.find("a", class_="abs-button download-eprint")
-    if link and link.get("href"):
-        return f"https://arxiv.org{link['href']}"
-    return ""
+    # soup = BeautifulSoup(resp.text, "html.parser")
+    # link = soup.find("a", class_="abs-button download-eprint")
+    # if link and link.get("href"):
+    #     return f"{ARXIV_BASE_URL}{link['href']}"
+    # return ""
+    return f"{ARXIV_BASE_URL}/src/{arxiv_id}"
 
 def is_already_downloaded(arxiv_id: str, save_dir: str) -> bool:
     """
@@ -784,7 +786,7 @@ def batch_download_arxiv_tex(arxiv_ids: List[str], save_dir: str = "./tex_source
             print(f"[SKIP] No TeX source found for {arxiv_id}. Please check the arXiv ID or the availability of the source.")
 
             # 下载PDF文件
-        pdf_url = f"https://arxiv.org/pdf/{arxiv_id}.pdf"
+        pdf_url = f"{ARXIV_BASE_URL}/pdf/{arxiv_id}.pdf"
         pdf_path = os.path.join(save_dir, arxiv_id, f"{arxiv_id}.pdf")
         os.makedirs(os.path.dirname(pdf_path), exist_ok=True)
 
@@ -809,7 +811,7 @@ def get_arxiv_category(arxiv_ids: List[str]) -> dict:
     results = {}
     headers = {"User-Agent": "Mozilla/5.0"}
     for arxiv_id in arxiv_ids:
-        abs_url = f"https://arxiv.org/abs/{arxiv_id}"
+        abs_url = f"{ARXIV_BASE_URL}/abs/{arxiv_id}"
         categories = []
 
         try:
@@ -855,7 +857,8 @@ def extract_arxiv_ids(arxiv_list):
             ids.append(item)
             continue
 
-        url_pattern = r'(?:arxiv\.org/)(?:abs|pdf|e-print)/([\w\-]+/\d{7}|\d{4}\.\d{5,7})(?:\.pdf)?'
+        domain_pat = re.escape(_arxiv_netloc)
+        url_pattern = rf'(?:{domain_pat}/)(?:abs|pdf|e-print)/([\\w\\-]+/\\d{{7}}|\\d{{4}}\\.\\d{{5,7}})(?:\\.pdf)?'
         match = re.search(url_pattern, item)
         if match:
             ids.append(match.group(1))
@@ -868,8 +871,11 @@ def extract_arxiv_ids_V2(item):
         ids = item
 
     else:
-        url_pattern = r'(?:arxiv\.org/)(?:abs|pdf|e-print)/([\w\-]+/\d{7}|\d{4}\.\d{5,7})(?:\.pdf)?'
+        domain_pat = re.escape(_arxiv_netloc)
+        url_pattern = rf'(?:{domain_pat}/)(?:abs|pdf|e-print)/([\\w\\-]+/\\d{{7}}|\\d{{4}}\\.\\d{{5,7}})(?:\\.pdf)?'
         match = re.search(url_pattern, item)
         if match:
             ids = match.group(1)
     return ids
+ARXIV_BASE_URL = os.environ.get("ARXIV_BASE_URL", "https://arxiv.org").rstrip('/')
+_arxiv_netloc = urlparse(ARXIV_BASE_URL).netloc or "arxiv.org"

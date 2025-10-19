@@ -1,4 +1,3 @@
-import toml
 import argparse
 import os
 import sys
@@ -19,7 +18,7 @@ def main():
     Allows overriding paper_list from command-line arguments.
     """
     parser = argparse.ArgumentParser()
-    parser.add_argument("--config", type=str, default="config/default.toml", help="Path to the config TOML file.")
+    parser.add_argument("--config", type=str, default="", help="(ignored) kept for compatibility.")
     #parser.add_argument("paper_ids", nargs="*", help="Optional list of arXiv paper IDs to override config.")
     parser.add_argument("--model", type=str, default="", help="Model for translating.")
     parser.add_argument("--url", type=str, default="", help="Model url.")
@@ -45,17 +44,37 @@ def main():
     #     subprocess.run(["streamlit", "run", ui_path])
     #     return 0
 
-    # args_dict = vars(args)
-    config = toml.load(args.config)
+    # Build config from environment variables with CLI overrides (no TOML)
+    llm_base_url = (args.url or os.environ.get("LTX_BASE_URL") or os.environ.get("BASE_URL") or "").strip()
+    llm_api_key = (args.key or os.environ.get("LTX_API_KEY") or os.environ.get("API_KEY") or "").strip()
+    llm_model = (args.model or os.environ.get("LTX_MODEL") or os.environ.get("MODEL") or "").strip()
+    try:
+        llm_concurrency = int(os.environ.get("LTX_CONCURRENCY", os.environ.get("CONCURRENCY", "10")))
+    except ValueError:
+        llm_concurrency = 10
 
-    if args.url:
-        config["llm_config"]["base_url"] = args.url
+    config = {
+        "sys_name": os.environ.get("LTX_SYS_NAME", "LaTeXTrans"),
+        "version": os.environ.get("LTX_VERSION", "0.1.0"),
+        "target_language": os.environ.get("LTX_TARGET_LANGUAGE", "ch"),
+        "source_language": os.environ.get("LTX_SOURCE_LANGUAGE", "en"),
+        "paper_list": [],
+        "tex_sources_dir": args.source or os.environ.get("LTX_TEX_SOURCES_DIR", "tex source"),
+        "output_dir": args.output or os.environ.get("LTX_OUTPUT_DIR", "outputs"),
+        "category": {},
+        "update_term": os.environ.get("LTX_UPDATE_TERM", "False"),
+        "mode": int(os.environ.get("LTX_MODE", "0")),
+        "user_term": os.environ.get("LTX_USER_TERM", ""),
+        "llm_config": {
+            "model": llm_model,
+            "api_key": llm_api_key,
+            "base_url": llm_base_url,
+            "concurrency": llm_concurrency,
+        },
+    }
+
     if args.arxiv:
         config["paper_list"].append(args.arxiv)
-    if args.model:
-        config["llm_config"]["model"] = args.model
-    if args.key:
-        config["llm_config"]["api_key"] = args.key
     # if args.mode:
     #     config["mode"] = args.mode
     # if args.update_term:
@@ -64,10 +83,7 @@ def main():
     #     config["target_language"] = args.tl
     # if args.sl:
     #     config["source_language"] = args.sl
-    if args.source:
-        config["tex_sources_dir"] = args.source
-    if args.output:
-        config["output_dir"] = args.output
+    # paths already set above
     # if args.ut:
     #     config["user_term"] = args.ut
 

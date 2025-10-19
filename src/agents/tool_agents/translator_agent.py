@@ -38,6 +38,10 @@ class TranslatorAgent(BaseToolAgent):
         self.model = config["llm_config"].get("model", "gpt-4o")
         self.base_url = config["llm_config"].get("base_url", None)
         self.API_KEY = config["llm_config"].get("api_key", None)
+        try:
+            self.concurrency = int(config.get("llm_config", {}).get("concurrency", 10))
+        except Exception:
+            self.concurrency = 10
         self.user_term = config.get("user_term", None)
         self.target_language = config.get("target_language", "ch")
         self.category = config.get("category", None)
@@ -82,7 +86,7 @@ class TranslatorAgent(BaseToolAgent):
             sys.stderr = sys.__stderr__
 
             async with aiohttp.ClientSession() as session:
-                sem = asyncio.Semaphore(10)  # Considering the api response speed, processing one section approximately takes about 10 seconds, and initiating a call every half second, 
+                sem = asyncio.Semaphore(self.concurrency)  # configurable concurrency
                                              # around 10 should not waste api tokens
 
                 async def process_section(i, sec):
@@ -289,7 +293,7 @@ class TranslatorAgent(BaseToolAgent):
     async def _retranslate_error_parts(self, secs, caps, envs, session) -> Any:
 
         async with aiohttp.ClientSession() as session:
-            sem = asyncio.Semaphore(20)  
+            sem = asyncio.Semaphore(self.concurrency)
 
             sys.stderr = open(os.devnull, 'w')
             process_b = st.empty()
