@@ -580,7 +580,7 @@ class TranslatorAgent(BaseToolAgent):
                 {"role": "user", "content": f"{text}"}
             ],
             "temperature": 0.7,
-            "max_new_tokens": 8192
+            "max_completion_tokens": 8192
         }
 
         headers = {
@@ -631,7 +631,7 @@ class TranslatorAgent(BaseToolAgent):
             ],
             "temperature": 0.7,
             # "max_length": 100000,
-            "max_new_tokens": 8192
+            "max_completion_tokens": 8192
         }
 
         headers = {
@@ -686,7 +686,7 @@ class TranslatorAgent(BaseToolAgent):
             ],
             "temperature": 0.7,
             # "max_length": 100000,
-            "max_new_tokens": 8192
+            "max_completion_tokens": 8192
         }
 
         headers = {
@@ -774,7 +774,7 @@ class TranslatorAgent(BaseToolAgent):
             ],
             "temperature": 0.7,
             # "max_length": 100000,
-            "max_new_tokens": 8192
+            "max_completion_tokens": 8192
         }
 
         headers = {
@@ -814,7 +814,7 @@ class TranslatorAgent(BaseToolAgent):
             ],
             "temperature": 0.7,
             # "max_length": 100000,
-            "max_new_tokens": 8192
+            "max_completion_tokens": 8192
         }
 
         headers = {
