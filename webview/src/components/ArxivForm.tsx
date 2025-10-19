@@ -34,10 +34,10 @@ const ArxivForm = () => {
         }
       } else {
         const err = await res.json().catch(() => ({}));
-        setError(err.detail || "启动任务失败");
+        setError(err.detail || "提交任务失败");
       }
     } catch (e) {
-      setError("网络错误，请稍后重试");
+      setError("网络异常，请稍后重试");
     } finally {
       setLoading(false);
     }
@@ -50,7 +50,7 @@ const ArxivForm = () => {
           name="arxivInput"
           type="text"
           placeholder="例如：https://arxiv.org/abs/1706.03762 或 1706.03762"
-          class="py-2 px-4 bg-white block w-full border border-gray-300 rounded-lg transition-all duration-200 ease-in sm:text-sm outline-none focus:border-slate-900 focus:ring-3 focus:ring-slate-300"
+          class="py-3 px-5 text-base bg-white block w-full border border-gray-300 rounded-lg transition-all duration-200 ease-in outline-none focus:border-slate-900 focus:ring-3 focus:ring-slate-300"
           classList={{ "border-red-600": !!error() }}
           onInput={(e) => setInputValue(e.currentTarget.value)}
         />
@@ -75,3 +75,4 @@ const ArxivForm = () => {
 };
 
 export default ArxivForm;
+

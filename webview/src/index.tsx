@@ -11,6 +11,7 @@ import Login from "./pages/Login";
 import History from "./pages/History";
 import { getToken } from "./utils/auth";
 import TaskLoading from "./pages/TaskLoading";
+import Compare from "./pages/Compare";
 
 const RequireAuth = (props: ParentProps) => {
   const navigate = useNavigate();
@@ -45,6 +46,11 @@ const App = () => {
           <Route path="/task/:id" component={() => (
             <RequireAuth>
               <TaskLoading />
+            </RequireAuth>
+          )} />
+          <Route path="/compare/:arxiv/:version" component={() => (
+            <RequireAuth>
+              <Compare />
             </RequireAuth>
           )} />
         </Suspense>

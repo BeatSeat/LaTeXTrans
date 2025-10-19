@@ -1,5 +1,5 @@
 import { createEffect, createResource, createSignal, onCleanup } from "solid-js";
-import { useParams } from "@solidjs/router";
+import { useNavigate, useParams } from "@solidjs/router";
 import Layout from "../components/Layout";
 import { authHeader } from "../utils/auth";
 
@@ -28,6 +28,7 @@ const fetchJobs = async () => {
 
 const TaskLoading = () => {
   const params = useParams();
+  const navigate = useNavigate();
   const jobId = () => params.id as string;
 
   const [job, { refetch }] = createResource<Job>(() => jobId(), fetchJob);
@@ -43,15 +44,13 @@ const TaskLoading = () => {
   });
   onCleanup(() => { const t = timer(); if (t) clearInterval(t); });
 
-  const openPdf = async () => {
+  // 任务完成后自动跳转到对照查看页
+  createEffect(() => {
     const j = job();
-    if (!j || !j.result) return;
-    const res = await fetch(j.result.pdf_endpoint, { headers: { ...authHeader() } });
-    if (!res.ok) return;
-    const blob = await res.blob();
-    const url = URL.createObjectURL(blob);
-    window.open(url, "_blank");
-  };
+    if (j && j.status === "completed" && j.result) {
+      navigate(`/compare/${j.arxiv_id}/${j.result.version}`, { replace: true });
+    }
+  });
 
   return (
     <Layout>
@@ -67,13 +66,6 @@ const TaskLoading = () => {
             <div class="text-sm w-12 text-right">{job()?.progress ?? 0}%</div>
           </div>
           <div class="mt-2 text-gray-600 text-sm">{job()?.message}</div>
-          {job()?.status === 'completed' && job()?.result && (
-            <div class="mt-4">
-              <button class="rounded-md bg-slate-900 px-3 py-1 text-white" onClick={openPdf}>
-                查看PDF (v{job()?.result?.version})
-              </button>
-            </div>
-          )}
           {job()?.status === 'failed' && (
             <div class="mt-2 text-red-600 text-sm">失败：{job()?.error}</div>
           )}
@@ -84,7 +76,10 @@ const TaskLoading = () => {
           <div class="mt-2 text-sm text-gray-600">最近任务：</div>
           <div class="mt-2 border rounded-lg divide-y">
             {(jobs()?.data ?? []).map((j: Job) => (
-              <div class="p-2 flex justify-between items-center">
+              <div
+                class="p-2 flex justify-between items-center cursor-pointer"
+                onClick={() => j.status === 'completed' && j.result ? navigate(`/compare/${j.arxiv_id}/${j.result.version}`) : null}
+              >
                 <div>
                   <div class="font-mono">{j.arxiv_id}</div>
                   <div class="text-xs text-gray-500">{j.status} {j.status === 'queued' ? `(位置 ${j.position})` : ''}</div>

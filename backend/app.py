@@ -10,6 +10,7 @@ from fastapi import FastAPI, BackgroundTasks, HTTPException, Depends, Header
 from fastapi.responses import JSONResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
+import requests
 
 from src.agents.coordinator_agent import CoordinatorAgent
 from src.formats.latex.utils import (
@@ -33,6 +34,7 @@ app = FastAPI(title="LaTeXTrans Backend", version="0.3.0")
 JWT_SECRET = os.environ.get("JWT_SECRET", "dev-secret")
 APP_PASSWORD = os.environ.get("APP_PASSWORD", "")
 TOKEN_TTL_SECONDS = int(os.environ.get("TOKEN_TTL_SECONDS", "604800"))  # default 7d
+ARXIV_BASE_URL = os.environ.get("ARXIV_BASE_URL", "https://arxiv.org").rstrip("/")
 
 
 class LoginRequest(BaseModel):
@@ -299,6 +301,26 @@ async def get_pdf(arxiv_id: str, version: str, user=Depends(get_current_user)):
     pdf_path = os.path.join("/tmp/outputs", name, f"{name}.pdf")
     if not os.path.isfile(pdf_path):
         raise HTTPException(status_code=404, detail="PDF not found")
+    return FileResponse(pdf_path, media_type="application/pdf")
+
+
+@app.get("/api/original_pdf/{arxiv_id}")
+async def get_original_pdf(arxiv_id: str, user=Depends(get_current_user)):
+    # Cache original PDF under /tmp/outputs/originals
+    cache_dir = os.path.join("/tmp", "outputs", "originals")
+    os.makedirs(cache_dir, exist_ok=True)
+    pdf_path = os.path.join(cache_dir, f"{arxiv_id}.pdf")
+    if not os.path.isfile(pdf_path):
+        url = f"{ARXIV_BASE_URL}/pdf/{arxiv_id}.pdf"
+        def _download():
+            r = requests.get(url, timeout=30)
+            if r.status_code != 200:
+                raise RuntimeError(f"Failed to fetch original pdf: {r.status_code}")
+            with open(pdf_path, "wb") as f:
+                f.write(r.content)
+        await asyncio.to_thread(_download)
+    if not os.path.isfile(pdf_path):
+        raise HTTPException(status_code=404, detail="Original PDF not found")
     return FileResponse(pdf_path, media_type="application/pdf")
 
 
