@@ -46,6 +46,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY src/ ./src/
 COPY backend/ ./backend/
 COPY main.py ./main.py
+COPY terms/ ./terms/
 
 # Frontend dist -> serve as static files
 COPY --from=frontend /app/webview/dist ./webview/dist
