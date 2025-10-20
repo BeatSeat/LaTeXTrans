@@ -4,7 +4,7 @@ import Layout from "../components/Layout";
 import PDFViewer from "../components/PDFViewer";
 import { authHeader } from "../utils/auth";
 
-const Compare = () => {
+const const Compare = () => {
   const params = useParams();
   const arxivId = () => params.arxiv as string;
   const version = () => params.version as string;
@@ -44,14 +44,16 @@ const Compare = () => {
   });
 
   return (
-    <Layout>
-      <div class="px-2 pt-3">
-        <div class="text-sm text-gray-600 mb-2">
-          对照查看：<span class="font-mono">{arxivId()}</span> v{version()}
-        </div>
-        <PDFViewer originPDFPath={originUrl()} zhCNPDFPath={zhUrl()} />
+    <div class="px-2 pt-3">
+      <div class="text-sm text-gray-600 mb-2">
+        对照查看：<span class="font-mono">{arxivId()}</span> v{version()}
       </div>
-    </Layout>
+      <PDFViewer originPDFPath={originUrl()} zhCNPDFPath={zhUrl()} />
+    </div>
+  );
+};
+
+export default Compare;
   );
 };
 

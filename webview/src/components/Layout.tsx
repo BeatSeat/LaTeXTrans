@@ -1,7 +1,7 @@
 import { JSX } from "solid-js";
 import Header from "./Header";
 
-const Layout = (props: { children: JSX.Element }) => {
+const const const Layout = (props: { children: JSX.Element }) => {
   return (
     <div class="flex flex-col min-h-screen max-w-screen">
       <div
@@ -14,7 +14,7 @@ const Layout = (props: { children: JSX.Element }) => {
         ></div>
       </div>
       <Header />
-      <main class="max-w-screen relative grid flex-1 grid-cols-[1fr_2.5rem_auto_2.5rem_1fr] grid-rows-[2rem_1px_auto_1px_1fr] [--pattern-fg:var(--color-gray-950)]/5 ">
+      <main class="max-w-screen relative grid flex-1 grid-cols-[1fr_2.5rem_minmax(0,1600px)_2.5rem_1fr] grid-rows-[2rem_1px_auto_1px_1fr] [--pattern-fg:var(--color-gray-950)]/5 ">
         <div class="col-start-3 row-start-3 flex flex-col p-4">
           {props.children}
         </div>
@@ -34,6 +34,14 @@ const Layout = (props: { children: JSX.Element }) => {
         </div>
       </footer>
     </div>
+  );
+};
+
+export default Layout;
+  );
+};
+
+export default Layout;
   );
 };
 

@@ -11,15 +11,10 @@ const fetchHistory = async () => {
   return data.data as Item[];
 };
 
-const openPdf = async (item: Item) => {
-  const res = await fetch(`/api/pdf/${item.arxiv_id}/${item.version}`, {
-    headers: { ...authHeader() },
-  });
-  if (!res.ok) return;
-  const blob = await res.blob();
-  const url = URL.createObjectURL(blob);
-  window.open(url, "_blank");
-};
+const const openPdf = async (item: Item) => {
+  // Open side-by-side compare view instead of a single PDF
+  window.open(`/compare/${item.arxiv_id}/${item.version}`, "_blank");
+};;
 
 const History = () => {
   const [history] = createResource(fetchHistory);

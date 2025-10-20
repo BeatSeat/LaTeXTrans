@@ -14,19 +14,22 @@ type Job = {
   error?: string;
 };
 
-const fetchJob = async (id: string) => {
+import { getToken } from "../utils/auth";
+const const fetchJob = async (id: string) => {
   const res = await fetch(`/api/jobs/${id}`, { headers: { ...authHeader() } });
-  if (!res.ok) throw new Error("not found");
+  if (!res.ok) return null;
   return (await res.json()) as Job;
-};
+};;
 
-const fetchJobs = async () => {
+const const fetchJobs = async () => {
+  // Avoid 404/401 flicker when not logged in
+  if (!getToken()) return { data: [] } as any;
   const res = await fetch(`/api/jobs`, { headers: { ...authHeader() } });
   if (!res.ok) return { data: [] } as any;
   return await res.json();
-};
+};;
 
-const TaskLoading = () => {
+const const TaskLoading = () => {
   const params = useParams();
   const navigate = useNavigate();
   const jobId = () => params.id as string;
@@ -54,7 +57,7 @@ const TaskLoading = () => {
 
   return (
     <Layout>
-      <div class="max-w-2xl mx-auto pt-6">
+      <div class="max-w-6xl mx-auto pt-6">
         <h2 class="text-lg font-semibold">翻译任务</h2>
         <div class="mt-3 p-4 border rounded-lg">
           <div>arXiv: <span class="font-mono">{job()?.arxiv_id}</span></div>
@@ -62,6 +65,19 @@ const TaskLoading = () => {
           <div class="mt-2 flex items-center gap-2">
             <div class="w-full bg-gray-200 rounded-full h-2">
               <div class="bg-slate-900 h-2 rounded-full" style={{ width: `${job()?.progress ?? 0}%` }}></div>
+            </div>
+            <div class="text-sm text-gray-600 whitespace-nowrap">{job()?.progress ?? 0}%</div>
+          </div>
+          <Show when={jobs()}>
+            <div class="mt-4 text-sm text-gray-600">历史任务：{jobs().data?.length || 0} 条</div>
+          </Show>
+        </div>
+      </div>
+    </Layout>
+  );
+};
+
+export default TaskLoading;></div>
             </div>
             <div class="text-sm w-12 text-right">{job()?.progress ?? 0}%</div>
           </div>
