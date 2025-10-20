@@ -1,3 +1,5 @@
 .env
 .serena
 raw/
+webview/dist
+webview/node_modules

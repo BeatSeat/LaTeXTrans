@@ -1,7 +1,7 @@
 import { JSX } from "solid-js";
 import Header from "./Header";
 
-const const const Layout = (props: { children: JSX.Element }) => {
+const Layout = (props: { children: JSX.Element }) => {
   return (
     <div class="flex flex-col min-h-screen max-w-screen">
       <div
@@ -15,33 +15,22 @@ const const const Layout = (props: { children: JSX.Element }) => {
       </div>
       <Header />
       <main class="max-w-screen relative grid flex-1 grid-cols-[1fr_2.5rem_minmax(0,1600px)_2.5rem_1fr] grid-rows-[2rem_1px_auto_1px_1fr] [--pattern-fg:var(--color-gray-950)]/5 ">
-        <div class="col-start-3 row-start-3 flex flex-col p-4">
-          {props.children}
-        </div>
-        {/* Pattern lines omitted for brevity but would be here */}
+        <div class="col-start-3 row-start-3 flex flex-col p-4">{props.children}</div>
       </main>
       <footer class="col-start-3 row-start-5 ">
         <div class="mx-auto p-4 text-sm/6 text-gray-600 md:flex md:items-center md:justify-between">
           <div class="flex justify-center gap-x-6 md:order-2 md:mt-0">
-            京 ICP 备 2025111180 号
+            �� ICP �� 2025111180 ��
           </div>
           <div class="flex justify-center gap-x-6 md:order-3">
             <a href="https://www.xiaohongshu.com/user/profile/55aa3eaee4b1cf372e3e47cf">
-              小红书
+              С����
             </a>
-            <a href="mailto:public@cyberwalnut.top">联系邮箱</a>
+            <a href="mailto:public@cyberwalnut.top">��ϵ����</a>
           </div>
         </div>
       </footer>
     </div>
-  );
-};
-
-export default Layout;
-  );
-};
-
-export default Layout;
   );
 };
 

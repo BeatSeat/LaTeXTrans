@@ -13,7 +13,7 @@ const fetchHistory = async () => {
   return (data.data as HistoryItem[]) ?? [];
 };
 
-const const Home = () => {
+const Home = () => {
   const navigate = useNavigate();
   const [history] = createResource(fetchHistory);
 
@@ -24,8 +24,8 @@ const const Home = () => {
           <ArxivForm />
         </div>
         <div class="max-w-6xl mx-auto mt-8">
-          <div class="font-semibold mb-2">历史翻译</div>
-          <Show when={history()} fallback={<div class="text-sm text-gray-500">加载中...</div>}>
+          <div class="font-semibold mb-2">��ʷ����</div>
+          <Show when={history()} fallback={<div class="text-sm text-gray-500">������...</div>}>
             <For each={history()}>
               {(i) => (
                 <div class="py-2 border-b flex items-center justify-between">
@@ -36,31 +36,11 @@ const const Home = () => {
                     class="rounded-md bg-slate-900 px-3 py-1 text-white"
                     onClick={() => navigate(`/compare/${i.arxiv_id}/${i.version}`)}
                   >
-                    查看
+                    �鿴
                   </button>
                 </div>
               )}
             </For>
-          </Show>
-        </div>
-      </div>
-    </Layout>
-  );
-};
-
-export default Home;>
-            <div class="space-y-2">
-              <For each={history()?.slice(0, 20)}>
-                {(item, i) => (
-                  <div
-                    class="text-sm cursor-pointer hover:underline"
-                    onClick={() => navigate(`/compare/${item.arxiv_id}/${item.version}`)}
-                  >
-                    [{i() + 1}] {item.arxiv_id} v{item.version}
-                  </div>
-                )}
-              </For>
-            </div>
           </Show>
         </div>
       </div>
